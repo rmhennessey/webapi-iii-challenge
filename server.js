@@ -7,12 +7,21 @@ const postsPost = require('./posts/posts-router.js')
 
 const server = express();
 
+// const bigBoyLetters = require('./middleware')
+
+
 server.use(express.json());
 server.use(helmet());
+// server.use(bigBoyLetters);
+
+
 
 
 server.use('/api/users', postsUser)
 server.use('/api/posts', postsPost)
+
+
+
 
 
 server.get('/', (req, res) => {

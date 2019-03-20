@@ -4,6 +4,8 @@ const router = express.Router();
 
 const db = require('../data/helpers/userDb')
 
+const bigBoyLetters = require('../middleware')
+
 router.get('/', (req, res) => {
     db
         .get()
@@ -31,7 +33,23 @@ router.get('/:id', (req, res) => {
         })
 })
 
-router.post('/', (req, res) => {
+router.get('/:id', (req, res) => {
+    const id = req.params.id;
+    db
+        .getById(id)
+        .then(user => {
+            if(user.length === 0) {
+                res.status(404).json({ message: "The user with the specified ID does not exist." });
+            } else {
+                res.status(200).json(user);
+            }
+        })
+        .catch(error => {
+            res.status(500).json({ error: "The user information could not be retrieved." });
+        })
+})
+
+router.post('/', bigBoyLetters, (req, res) => {
     const { name } = req.body;
 
     if (!name) {
@@ -64,7 +82,7 @@ router.delete('/:id', (req, res) => {
         })
 })
 
-router.put('/:id', (req, res) => {
+router.put('/:id', bigBoyLetters, (req, res) => {
     const id = req.params.id;
     const userInfo = req.body;
 
@@ -104,6 +122,27 @@ router.put('/:id', (req, res) => {
                 .json({ error: "The user info could not be modified"})
         })
 
+});
+
+router.get('/posts/:userId', (req, res) => {
+    const userId = req.params.userId;
+    db
+        .getUserPosts(userId)
+        .then(userPosts => {
+            if (userPosts === 0) {
+                res
+                    .status(404)
+                    .json({ error: "No posts by that user could be located."})
+            } else {
+                res
+                    .json(userPosts);
+            }
+        })
+        .catch(err => {
+            res
+                .status(500)
+                .json({ error: "Request Failure Occured"})
+        }); 
 });
 
 module.exports = router;
